@@ -1,0 +1,27 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: pi-scaledjob
+spec:
+  jobTargetRef:
+    template:
+      spec:
+        containers:
+        - name: pi
+          image: perl:5.34.0
+          command: ["perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+        restartPolicy: Never
+  pollingInterval: 30  
+  successfulJobsHistoryLimit: 5 
+  failedJobsHistoryLimit: 5   
+  maxReplicaCount: 100       
+  scalingStrategy:
+    strategy: "default" 
+  triggers:
+  - type: cron
+    metadata:
+      # Required
+      timezone: America/Los_Angeles  # The acceptable values would be a value from the IANA Time Zone Database.
+      start: 30 * * * *              # Every hour on the 30th minute
+      end: 45 * * * *                # Every hour on the 45th minute
+      desiredReplicas: "10"

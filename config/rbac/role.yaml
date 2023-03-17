@@ -1,0 +1,79 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - autoscaling
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - carbonaware.kubernetes.azure.com
+  resources:
+  - carbonawarekedascalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - carbonaware.kubernetes.azure.com
+  resources:
+  - carbonawarekedascalers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - carbonaware.kubernetes.azure.com
+  resources:
+  - carbonawarekedascalers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - keda.sh
+  resources:
+  - scaledjobs
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - keda.sh
+  resources:
+  - scaledobjects
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch

@@ -1,0 +1,12 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: mynginx-scaledobject
+spec:
+  scaleTargetRef:
+    name: mynginx
+  triggers:
+  - type: kubernetes-workload
+    metadata:
+      podSelector: 'app=mynginx'
+      value: '3'
