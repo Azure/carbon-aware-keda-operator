@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redis-words
+  name: redis-words
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-words
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: redis-words
+    spec:
+      containers:
+      - image: redis:latest
+        name: redis
+        args:
+        - --requirepass
+        - "password"
+        resources: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redis-words
+  name: redis-words
+spec:
+  ports:
+  - port: 6379
+    protocol: TCP
+    targetPort: 6379
+  selector:
+    app: redis-words
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: word-processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: word-processor
+  template:
+    metadata:
+      labels:
+        app: word-processor
+    spec:
+      containers:
+        - image: mcr.microsoft.com/mslearn/samples/redis-client:latest
+          name: word-processor
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          env:
+            - name: REDIS_HOST
+              value: "redis-words.default.svc.cluster.local"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_LIST
+              value: "words"
+            - name: REDIS_KEY
+              value: "password"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: redis-word-pusher
+spec:
+  jobTemplate:
+    metadata:
+      name: redis-word-pusher
+    spec:
+      template:
+        spec:
+          containers:
+          - image: ghcr.io/pauldotyu/simple-redis-pusher
+            name: redis-word-pusher
+            env:
+            - name: REDIS_HOST
+              value: "redis-words"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_LIST
+              value: "words"
+            - name: REDIS_KEY
+              value: "password"
+            - name: ITEM_COUNT
+              value: "500"
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                cpu: 100m
+                memory: 128Mi
+          restartPolicy: OnFailure
+  schedule: '*/15 * * * *'
