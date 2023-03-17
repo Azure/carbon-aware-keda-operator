@@ -1,0 +1,31 @@
+# permissions for end users to edit carbonawarekedascalers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: carbonawarekedascaler-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: carbon-aware-keda-operator
+    app.kubernetes.io/part-of: carbon-aware-keda-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: carbonawarekedascaler-editor-role
+rules:
+- apiGroups:
+  - carbonaware.kubernetes.azure.com
+  resources:
+  - carbonawarekedascalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - carbonaware.kubernetes.azure.com
+  resources:
+  - carbonawarekedascalers/status
+  verbs:
+  - get
