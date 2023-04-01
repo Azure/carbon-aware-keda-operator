@@ -135,9 +135,13 @@ func (r *CarbonAwareKedaScalerReconciler) Reconcile(ctx context.Context, req ctr
 
 	// get the current carbon forecast
 	currentforecast := findCarbonForecast(forecast, now)
-	requeueInterval = currentforecast.Duration
-	if err != nil {
-		requeueInterval = 5
+	if currentforecast != nil {
+		requeueInterval = currentforecast.Duration
+	} else {
+		ecoModeStatus.IsDisabled = true
+		ecoModeStatus.DisableReason = "unable to find current carbon forecast"
+		ecoModeStatus.RequeueAfter = getRequeueDuration(now, requeueInterval)
+		maxReplicaCount = &carbonAwareKedaScaler.Spec.EcoModeOff.MaxReplicas
 	}
 
 	// check if it should be disabled based on the eco mode off configuration
@@ -293,8 +297,10 @@ func (r *CarbonAwareKedaScalerReconciler) Reconcile(ctx context.Context, req ctr
 		}
 	}
 
-	// log the current carbon intensity
-	CarbonIntensityMetric.WithLabelValues(carbonAwareKedaScaler.Name).Set(currentforecast.Value)
+	// log the current carbon intensity if there is one
+	if currentforecast != nil {
+		CarbonIntensityMetric.WithLabelValues(carbonAwareKedaScaler.Name).Set(currentforecast.Value)
+	}
 
 	// log the default max replicas
 	DefaultMaxReplicasMetric.WithLabelValues(carbonAwareKedaScaler.Name).Set(float64(carbonAwareKedaScaler.Spec.EcoModeOff.MaxReplicas))
