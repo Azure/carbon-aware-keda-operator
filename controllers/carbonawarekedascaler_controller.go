@@ -216,7 +216,7 @@ func (r *CarbonAwareKedaScalerReconciler) Reconcile(ctx context.Context, req ctr
 		if ecoModeStatus.IsDisabled {
 			EcoModeOffMetric.WithLabelValues(carbonAwareKedaScaler.Name, "1").Inc()
 			logger.Info("eco mode disabled", "reason", ecoModeStatus.DisableReason)
-			r.Recorder.Event(carbonAwareKedaScaler, "Warning", "EcoModeDisabled", fmt.Sprintf("Eco mode disabled due to %s", ecoModeStatus.DisableReason))
+			r.Recorder.Event(carbonAwareKedaScaler, "Warning", "EcoModeDisabled", fmt.Sprintf("Eco mode disabled: %s", ecoModeStatus.DisableReason))
 			maxReplicaCount = &carbonAwareKedaScaler.Spec.EcoModeOff.MaxReplicas
 		} else {
 			EcoModeOffMetric.WithLabelValues(carbonAwareKedaScaler.Name, "0").Inc()
@@ -265,7 +265,7 @@ func (r *CarbonAwareKedaScalerReconciler) Reconcile(ctx context.Context, req ctr
 		if ecoModeStatus.IsDisabled {
 			EcoModeOffMetric.WithLabelValues(carbonAwareKedaScaler.Name, "1").Inc()
 			logger.Info("eco mode disabled", "reason", ecoModeStatus.DisableReason)
-			r.Recorder.Event(carbonAwareKedaScaler, "Warning", "EcoModeDisabled", fmt.Sprintf("Eco mode disabled due to %s", ecoModeStatus.DisableReason))
+			r.Recorder.Event(carbonAwareKedaScaler, "Warning", "EcoModeDisabled", fmt.Sprintf("Eco mode disabled: %s", ecoModeStatus.DisableReason))
 			maxReplicaCount = &carbonAwareKedaScaler.Spec.EcoModeOff.MaxReplicas
 		} else {
 			EcoModeOffMetric.WithLabelValues(carbonAwareKedaScaler.Name, "0").Inc()
