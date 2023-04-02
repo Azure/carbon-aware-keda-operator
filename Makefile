@@ -139,12 +139,12 @@ kind-deploy: manifests kustomize docker-build kind-create ## Deploy controller t
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
 	kubectl apply -f hack/prometheus/manifests/
+	kubectl create clusterrolebinding carbon-aware-keda-operator-prometheus-rolebinding --clusterrole=carbon-aware-keda-operator-metrics-reader --serviceaccount=default:prometheus-operator --dry-run=client --validate -o yaml | kubectl apply -f -
 	kubectl apply -f hack/keda/keda-2.10.0.yaml
 	kubectl wait --for=condition=Available --timeout=600s apiservice v1beta1.external.metrics.k8s.io
 	kubectl apply -f hack/workload/deployment.yaml
 	kubectl apply -f hack/workload/scaledobject.yaml
-	kubectl create clusterrolebinding carbon-aware-keda-operator-prometheus-rolebinding --clusterrole=carbon-aware-keda-operator-metrics-reader --serviceaccount=default:prometheus-operator --dry-run=client --validate -o yaml | kubectl apply -f -
-	kubectl apply -f config/samples/carbonaware_v1alpha1_carbonawarekedascaler.yaml
+	kubectl apply -f hack/workload/carbonawarekedascaler.yaml
 
 ##@ Build Dependencies
 

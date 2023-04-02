@@ -343,7 +343,7 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 				status := &EcoModeStatus{}
 				configs := carbonawarev1alpha1.EcoModeOff{
 					RecurringSchedule: []string{
-						fmt.Sprintf("* %d * * *", time.Now().UTC().Hour()), // current hour
+						fmt.Sprintf("* * %d * *", time.Now().UTC().Day()), // current day
 					},
 				}
 				err := setEcoMode(status, configs, carbonforecast)
