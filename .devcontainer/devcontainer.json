@@ -2,6 +2,7 @@
   "name": "Ubuntu",
   "image": "mcr.microsoft.com/devcontainers/base:jammy",
   "features": {
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
     "ghcr.io/devcontainers/features/common-utils:2": {
       "configureZshAsDefaultShell": true
     },

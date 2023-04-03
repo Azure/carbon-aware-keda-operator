@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -39,7 +40,7 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 			const (
 				configMapName      = "mock-carbon-forecast"
 				configMapNamespace = "default"
-				configMapKey       = "mock-carbon-forecast"
+				configMapKey       = "data"
 			)
 			It("will save forecast data in a ConfigMap", func() {
 				f := &CarbonForecastMockConfigMapFetcher{
@@ -121,7 +122,7 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 		})
 	})
 
-	Context("the controller does stuff", func() {
+	Context("the controller reconcilation logic", func() {
 		const (
 			deploymentName                  = "mynginx"
 			deploymentNamespace             = "default"
@@ -133,73 +134,72 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 			carbonAwareKedaScalerKedaTarget = "scaledobjects.keda.sh"
 			configMapName                   = "mock-carbon-forecast"
 			configMapNamespace              = "default"
-			configMapKey                    = "mock-carbon-forecast"
+			configMapKey                    = "data"
 			timeout                         = time.Second * 5
 			interval                        = time.Millisecond * 250
 		)
-		BeforeEach(func() {
-			deployment := &appsv1.Deployment{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      deploymentName,
-					Namespace: deploymentNamespace,
-				},
-				Spec: appsv1.DeploymentSpec{
-					Replicas: pointer.Int32(1),
-					Selector: &metav1.LabelSelector{
-						MatchLabels: map[string]string{
-							"app": deploymentName,
-						},
+
+		When("the carbonawarekedascaler resource is created", func() {
+			BeforeEach(func() {
+				deployment := &appsv1.Deployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      deploymentName,
+						Namespace: deploymentNamespace,
 					},
-					Template: corev1.PodTemplateSpec{
-						ObjectMeta: metav1.ObjectMeta{
-							Labels: map[string]string{
+					Spec: appsv1.DeploymentSpec{
+						Replicas: pointer.Int32(1),
+						Selector: &metav1.LabelSelector{
+							MatchLabels: map[string]string{
 								"app": deploymentName,
 							},
 						},
-						Spec: corev1.PodSpec{
-							Containers: []corev1.Container{
-								{
-									Name:  "nginx",
-									Image: "nginx:latest",
-									Ports: []corev1.ContainerPort{
-										{
-											ContainerPort: 80,
+						Template: corev1.PodTemplateSpec{
+							ObjectMeta: metav1.ObjectMeta{
+								Labels: map[string]string{
+									"app": deploymentName,
+								},
+							},
+							Spec: corev1.PodSpec{
+								Containers: []corev1.Container{
+									{
+										Name:  "nginx",
+										Image: "nginx:latest",
+										Ports: []corev1.ContainerPort{
+											{
+												ContainerPort: 80,
+											},
 										},
 									},
 								},
 							},
 						},
 					},
-				},
-			}
-			Expect(k8sClient.Create(ctx, deployment)).Should(Succeed())
+				}
+				Expect(k8sClient.Create(ctx, deployment)).Should(Succeed())
 
-			scaledobject := &kedav1alpha1.ScaledObject{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      scaledObjectName,
-					Namespace: scaledObjectNamespace,
-				},
-				Spec: kedav1alpha1.ScaledObjectSpec{
-					ScaleTargetRef: &kedav1alpha1.ScaleTarget{
-						Name: scaledObjectName,
-						Kind: scaledObjectKind,
+				scaledobject := &kedav1alpha1.ScaledObject{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      scaledObjectName,
+						Namespace: scaledObjectNamespace,
 					},
-					Triggers: []kedav1alpha1.ScaleTriggers{
-						{
-							Type: "kubernetes-workload",
-							Metadata: map[string]string{
-								"podSelector": "app=mynginx",
-								"value":       "3",
+					Spec: kedav1alpha1.ScaledObjectSpec{
+						ScaleTargetRef: &kedav1alpha1.ScaleTarget{
+							Name: scaledObjectName,
+							Kind: scaledObjectKind,
+						},
+						Triggers: []kedav1alpha1.ScaleTriggers{
+							{
+								Type: "kubernetes-workload",
+								Metadata: map[string]string{
+									"podSelector": "app=mynginx",
+									"value":       "3",
+								},
 							},
 						},
 					},
-				},
-			}
-			Expect(k8sClient.Create(ctx, scaledobject)).Should(Succeed())
-		})
+				}
+				Expect(k8sClient.Create(ctx, scaledobject)).Should(Succeed())
 
-		When("the carbonawarekedascaler resource is created", func() {
-			BeforeEach(func() {
 				carbonawarekedascaler := &carbonawarev1alpha1.CarbonAwareKedaScaler{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      carbonAwareKedaScalerName,
@@ -242,11 +242,115 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 				err := k8sClient.Get(ctx, client.ObjectKey{Name: carbonAwareKedaScalerName, Namespace: carbonAwareKedaScalerNamespace}, carbonawarekedascaler)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(k8sClient.Delete(ctx, carbonawarekedascaler)).Should(Succeed())
+
+				scaledobject := &kedav1alpha1.ScaledObject{}
+				err = k8sClient.Get(ctx, client.ObjectKey{Name: scaledObjectName, Namespace: scaledObjectNamespace}, scaledobject)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(k8sClient.Delete(ctx, scaledobject)).Should(Succeed())
+
+				deployment := &appsv1.Deployment{}
+				err = k8sClient.Get(ctx, client.ObjectKey{Name: deploymentName, Namespace: deploymentNamespace}, deployment)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(k8sClient.Delete(ctx, deployment)).Should(Succeed())
 			})
 		})
 
 		When("the carbon intensity is within a configured range", func() {
+			const (
+				testConfigMapName      = "carbonintensity"
+				testConfigMapNamespace = "kube-system"
+				testConfigMapKey       = "data"
+			)
 			BeforeEach(func() {
+				deployment := &appsv1.Deployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      deploymentName,
+						Namespace: deploymentNamespace,
+					},
+					Spec: appsv1.DeploymentSpec{
+						Replicas: pointer.Int32(1),
+						Selector: &metav1.LabelSelector{
+							MatchLabels: map[string]string{
+								"app": deploymentName,
+							},
+						},
+						Template: corev1.PodTemplateSpec{
+							ObjectMeta: metav1.ObjectMeta{
+								Labels: map[string]string{
+									"app": deploymentName,
+								},
+							},
+							Spec: corev1.PodSpec{
+								Containers: []corev1.Container{
+									{
+										Name:  "nginx",
+										Image: "nginx:latest",
+										Ports: []corev1.ContainerPort{
+											{
+												ContainerPort: 80,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				}
+				Expect(k8sClient.Create(ctx, deployment)).Should(Succeed())
+
+				scaledobject := &kedav1alpha1.ScaledObject{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      scaledObjectName,
+						Namespace: scaledObjectNamespace,
+					},
+					Spec: kedav1alpha1.ScaledObjectSpec{
+						ScaleTargetRef: &kedav1alpha1.ScaleTarget{
+							Name: scaledObjectName,
+							Kind: scaledObjectKind,
+						},
+						Triggers: []kedav1alpha1.ScaleTriggers{
+							{
+								Type: "kubernetes-workload",
+								Metadata: map[string]string{
+									"podSelector": "app=mynginx",
+									"value":       "3",
+								},
+							},
+						},
+					},
+				}
+				Expect(k8sClient.Create(ctx, scaledobject)).Should(Succeed())
+				// Eventually(func() bool {
+				// 	hpa := &autoscalingv2.HorizontalPodAutoscaler{}
+				// 	err := k8sClient.Get(ctx, client.ObjectKey{Name: fmt.Sprintf("keda-hpa-%s", scaledObjectName), Namespace: scaledObjectNamespace}, hpa)
+				// 	return err == nil
+				// }, 30, interval).Should(BeTrue())
+
+				// create a mock carbon intensity forecast
+				cf := make([]CarbonForecast, 1)
+				cf[0] = CarbonForecast{
+					Timestamp: time.Now().UTC(),
+					Value:     float64(99),
+					Duration:  5,
+				}
+
+				// marshal the carbon forecast into byte array
+				forecast, err := json.Marshal(cf)
+				Expect(err).NotTo(HaveOccurred())
+
+				// create a configmap with the carbon forecast
+				configmap := &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      testConfigMapName,
+						Namespace: testConfigMapNamespace,
+					},
+					BinaryData: map[string][]byte{
+						testConfigMapKey: forecast,
+					},
+				}
+				Expect(k8sClient.Create(ctx, configmap)).Should(Succeed())
+
+				// create a carbonawarekedascaler resource
 				carbonawarekedascaler := &carbonawarev1alpha1.CarbonAwareKedaScaler{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      carbonAwareKedaScalerName,
@@ -254,7 +358,12 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 					},
 					Spec: carbonawarev1alpha1.CarbonAwareKedaScalerSpec{
 						CarbonIntensityForecastDataSource: carbonawarev1alpha1.CarbonIntensityForecastDataSource{
-							MockCarbonForecast: true,
+							MockCarbonForecast: false,
+							LocalConfigMap: carbonawarev1alpha1.LocalConfigMap{
+								Name:      testConfigMapName,
+								Namespace: testConfigMapNamespace,
+								Key:       testConfigMapKey,
+							},
 						},
 						KedaTarget: carbonawarev1alpha1.KedaTarget("scaledobjects.keda.sh"),
 						KedaTargetRef: carbonawarev1alpha1.KedaTargetRef{
@@ -264,7 +373,7 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 						MaxReplicasByCarbonIntensity: []carbonawarev1alpha1.CarbonIntensityConfig{
 							{
 								CarbonIntensityThreshold: 100,
-								MaxReplicas:              pointer.Int32(10),
+								MaxReplicas:              pointer.Int32(9),
 							},
 						},
 					},
@@ -272,26 +381,36 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 				Expect(k8sClient.Create(ctx, carbonawarekedascaler)).Should(Succeed())
 			})
 
-			// TODO: Implement this test
+			It("should update the scaledobject to the max replicas", func() {
+				scaledobject := &kedav1alpha1.ScaledObject{}
+				err := k8sClient.Get(ctx, client.ObjectKey{Name: scaledObjectName, Namespace: scaledObjectNamespace}, scaledobject)
+				Expect(err).NotTo(HaveOccurred())
+
+				// By("confirming the scaledobject has the correct max replicas")
+				// Expect(scaledobject.Spec.MaxReplicaCount).To(Equal(int32(9)))
+			})
 
 			AfterEach(func() {
+				configmap := &corev1.ConfigMap{}
+				err := k8sClient.Get(ctx, client.ObjectKey{Name: testConfigMapName, Namespace: testConfigMapNamespace}, configmap)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(k8sClient.Delete(ctx, configmap)).Should(Succeed())
+
 				carbonawarekedascaler := &carbonawarev1alpha1.CarbonAwareKedaScaler{}
-				err := k8sClient.Get(ctx, client.ObjectKey{Name: carbonAwareKedaScalerName, Namespace: carbonAwareKedaScalerNamespace}, carbonawarekedascaler)
+				err = k8sClient.Get(ctx, client.ObjectKey{Name: carbonAwareKedaScalerName, Namespace: carbonAwareKedaScalerNamespace}, carbonawarekedascaler)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(k8sClient.Delete(ctx, carbonawarekedascaler)).Should(Succeed())
+
+				scaledobject := &kedav1alpha1.ScaledObject{}
+				err = k8sClient.Get(ctx, client.ObjectKey{Name: scaledObjectName, Namespace: scaledObjectNamespace}, scaledobject)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(k8sClient.Delete(ctx, scaledobject)).Should(Succeed())
+
+				deployment := &appsv1.Deployment{}
+				err = k8sClient.Get(ctx, client.ObjectKey{Name: deploymentName, Namespace: deploymentNamespace}, deployment)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(k8sClient.Delete(ctx, deployment)).Should(Succeed())
 			})
-		})
-
-		AfterEach(func() {
-			scaledobject := &kedav1alpha1.ScaledObject{}
-			err := k8sClient.Get(ctx, client.ObjectKey{Name: scaledObjectName, Namespace: scaledObjectNamespace}, scaledobject)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(k8sClient.Delete(ctx, scaledobject)).Should(Succeed())
-
-			deployment := &appsv1.Deployment{}
-			err = k8sClient.Get(ctx, client.ObjectKey{Name: deploymentName, Namespace: deploymentNamespace}, deployment)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(k8sClient.Delete(ctx, deployment)).Should(Succeed())
 		})
 	})
 

@@ -56,10 +56,6 @@ type CarbonAwareKedaScalerReconciler struct {
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the CarbonAwareKedaScaler object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
@@ -222,7 +218,6 @@ func (r *CarbonAwareKedaScalerReconciler) Reconcile(ctx context.Context, req ctr
 			EcoModeOffMetric.WithLabelValues(carbonAwareKedaScaler.Name, "0").Inc()
 		}
 
-		// TODO: or catch "the object has been modified" and retry??
 		// get a fresh scaled object to avoid dirty writes
 		err := r.Get(ctx, types.NamespacedName{Name: scaledObject.Name, Namespace: scaledObject.Namespace}, scaledObject)
 		if err != nil {

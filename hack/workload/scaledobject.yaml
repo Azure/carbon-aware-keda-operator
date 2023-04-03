@@ -11,7 +11,7 @@ spec:
   pollingInterval: 30                               # Optional. Default: 30 seconds 
   cooldownPeriod:  120                              # Optional. Default: 300 seconds 
   minReplicaCount: 0                                # Optional. Default: 0 
-  maxReplicaCount: 100                              # Optional. Default: 100 
+  maxReplicaCount: 10                               # Optional. Default: 100 
   advanced:                                         # Optional. Section to specify advanced options 
     restoreToOriginalReplicaCount: false            # Optional. Default: false 
     horizontalPodAutoscalerConfig:                  # Optional. Section to specify HPA related options 
@@ -29,6 +29,6 @@ spec:
       portFromEnv: REDIS_PORT
       passwordFromEnv: REDIS_KEY 
       listName: words 
-      listLength: "50"
+      listLength: "500"
       enableTLS: "false"
       databaseIndex: "0"
