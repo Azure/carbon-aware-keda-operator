@@ -1,0 +1,16 @@
+apiVersion: v2
+name: carbonawarekedascaler
+version: 0.1.0
+description: A Helm chart for deploying carbon-aware-keda-operator
+type: application
+keywords:
+- keda
+- operator
+- carbon-aware
+home: https://github.com/Azure/carbon-aware-keda-operator
+sources:
+- https://github.com/Azure/carbon-aware-keda-operator
+dependencies:
+- name: keda
+version: 2.4.0
+repository: https://kedacore.github.io/charts

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "carbon-aware-keda-operator.fullname" . }}
+  labels:
+    {{- include "carbon-aware-keda-operator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "carbon-aware-keda-operator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "carbon-aware-keda-operator.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.carbonAwareKedaScaler.serviceAccount.name }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.carbonAwareKedaScaler.image.repository }}:{{ .Values.carbonAwareKedaScaler.image.tag }}"
+          imagePullPolicy: {{ .Values.carbonAwareKedaScaler.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.carbonAwareKedaScaler.resources | nindent 12 }}

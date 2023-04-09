@@ -1,0 +1,61 @@
+# This file defines the RBAC resources for the carbon-aware-keda-operator chart
+# Based on https://helm.sh/docs/chart_best_practices/rbac/
+
+# Create a service account for the operator
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "carbon-aware-keda-operator.serviceAccountName" . }}
+  labels:
+    {{- include "carbon-aware-keda-operator.labels" . | nindent 4 }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
+# Create a cluster role for the operator
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "carbon-aware-keda-operator.fullname" . }}
+  labels:
+    {{- include "carbon-aware-keda-operator.labels" . | nindent 4 }}
+rules:
+# Allow the operator to list and watch custom resources
+- apiGroups:
+  - keda.sh
+  resources:
+  - scaledobjects
+  - scaledobjects/status
+  - triggerauthentications
+  verbs:
+  - get
+  - list
+  - watch
+# Allow the operator to list and watch deployments and replicasets
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - deployments/scale
+  - replicasets
+  verbs:
+  - get
+  - list
+  - watch
+
+# Create a cluster role binding for the operator and the service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "carbon-aware-keda-operator.fullname" . }}
+  labels:
+    {{- include "carbon-aware-keda-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "carbon-aware-keda-operator.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "carbon-aware-keda-operator.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}

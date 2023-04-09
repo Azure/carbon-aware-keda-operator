@@ -1,0 +1,21 @@
+# Default values for carbon-aware-keda-operator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+carbonAwareKedaScaler:
+  image:
+    repository: ghcr.io/azure/carbon-aware-keda-operator
+    tag: v0.1.0
+    pullPolicy: IfNotPresent
+  serviceAccount:
+    create: true
+    name: carbon-aware-keda-operator
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
