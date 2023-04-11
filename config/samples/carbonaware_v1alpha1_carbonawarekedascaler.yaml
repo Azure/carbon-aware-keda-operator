@@ -16,7 +16,7 @@ spec:
   carbonIntensityForecastDataSource:       # carbon intensity forecast data source
     mockCarbonForecast: true               # [OPTIONAL] use mock carbon forecast data 
     localConfigMap:                        # [OPTIONAL] use configmap for carbon forecast data 
-      name: carbonintensity 
+      name: carbon-intensity 
       namespace: kube-system
       key: data 
   maxReplicasByCarbonIntensity:            # array of carbon intensity values in ascending order; each threshold value represents the upper limit and previous entry represents lower limit

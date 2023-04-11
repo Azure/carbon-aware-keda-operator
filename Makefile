@@ -134,8 +134,20 @@ kind-delete: kind ## Delete KIND cluster.
 .PHONY: kind-deploy
 kind-deploy: manifests kustomize docker-build kind-create ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	$(KIND) load docker-image ${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	$(KUSTOMIZE) build config/default | kubectl apply -f -
+	kubectl apply -f hack/keda/keda-2.10.0.yaml
+	kubectl wait --for=condition=Available --timeout=600s apiservice v1beta1.external.metrics.k8s.io
+	kubectl apply -f hack/workload/deployment.yaml
+	kubectl apply -f hack/workload/scaledobject.yaml
+	kubectl apply -f hack/workload/carbonawarekedascaler.yaml
+
+.PHONY: kind-deploy-prom
+kind-deploy-prom: manifests kustomize docker-build kind-create ## Deploy controller to the K8s cluster specified in ~/.kube/config.
+	$(KIND) load docker-image ${IMG}
 	kubectl apply --server-side -f hack/prometheus/manifests/setup
 	kubectl wait --for condition=Established --all CustomResourceDefinition --namespace=monitoring
+	sed -i 's^#- ../prometheus^- ../prometheus^g' config/default/kustomization.yaml
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
 	kubectl apply -f hack/prometheus/manifests/

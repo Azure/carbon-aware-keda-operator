@@ -78,11 +78,11 @@ func (c *CarbonForecastMockConfigMapFetcher) Fetch(ctx context.Context) ([]Carbo
 
 	// for 3 hours ago and 7 days in the future loop at each 5 min increment and add a carbon intensity value
 	for i := -3; i < 7*24*12; i++ {
-		// generate a random number between 500 and 700
+		// generate a random number between 529 and 580
 		rand.Seed(time.Now().UnixNano())
 		c.CarbonForecast = append(c.CarbonForecast, CarbonForecast{
 			Timestamp: time.Now().UTC().Add(time.Duration(i*5) * time.Minute),
-			Value:     rand.Float64()*200 + 500,
+			Value:     rand.Float64()*51 + 529,
 			Duration:  5,
 		})
 	}
@@ -96,8 +96,8 @@ func (c *CarbonForecastMockConfigMapFetcher) Fetch(ctx context.Context) ([]Carbo
 	// create a configmap and pass carbon forecast as binary data
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "mock-carbon-forecast",
-			Namespace: "default",
+			Name:      "carbon-intensity",
+			Namespace: "kube-system",
 		},
 		BinaryData: map[string][]byte{
 			"data": forecast,

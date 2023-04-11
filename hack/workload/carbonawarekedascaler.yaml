@@ -16,20 +16,20 @@ spec:
   carbonIntensityForecastDataSource:       # carbon intensity forecast data source 
     mockCarbonForecast: true               # [OPTIONAL] use mock carbon forecast data 
     localConfigMap:                        # [OPTIONAL] use configmap for carbon forecast data 
-      name: carbonintensity 
+      name: carbon-intensity 
       namespace: kube-system
       key: data 
   maxReplicasByCarbonIntensity:            # array of carbon intensity values in ascending order; each threshold value represents the upper limit and previous entry represents lower limit 
-    - carbonIntensityThreshold: 562        # when carbon intensity is 562 or below 
+    - carbonIntensityThreshold: 543        # when carbon intensity is 543 or below 
       maxReplicas: 15                      # do more 
-    - carbonIntensityThreshold: 575        # when carbon intensity is >562 and <=575 
+    - carbonIntensityThreshold: 561        # when carbon intensity is >544 and <=561 
       maxReplicas: 8 
-    - carbonIntensityThreshold: 589        # when carbon intensity is >575 and <=589 (or above) 
+    - carbonIntensityThreshold: 579        # when carbon intensity is >562 and <=579 (or above) 
       maxReplicas: 1                       # do less 
   ecoModeOff:                              # [OPTIONAL] settings to override carbon awareness; can override based on high intensity duration or schedules 
-    maxReplicas: 10                        # when carbon awareness is disabled, use this value 
+    maxReplicas: 100                       # when carbon awareness is disabled, use this value 
     carbonIntensityDuration:               # [OPTIONAL] disable carbon awareness when carbon intensity is high for this length of time 
-      carbonIntensityThreshold: 588        # when carbon intensity is equal to or above this value, consider it high 
+      carbonIntensityThreshold: 555        # when carbon intensity is equal to or above this value, consider it high 
       overrideEcoAfterDurationInMins: 60   # if carbon intensity is high for this many hours disable ecomode 
     customSchedule:                        # [OPTIONAL] disable carbon awareness during specified time periods 
       - startTime: "2023-03-31T16:45:00Z"  # start time in UTC 
