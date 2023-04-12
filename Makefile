@@ -125,12 +125,6 @@ kind-create: kind ## Create a KIND cluster if it doesn't already exist
 		$(KIND) create cluster; \
 	fi
 
-.PHONY: kind-delete
-kind-delete: kind ## Delete KIND cluster.
-	if [ `$(KIND) get clusters | wc -l` -gt 0 ]; then \
-		$(KIND) delete cluster; \
-	fi
-
 .PHONY: kind-deploy
 kind-deploy: manifests kustomize docker-build kind-create ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	$(KIND) load docker-image ${IMG}

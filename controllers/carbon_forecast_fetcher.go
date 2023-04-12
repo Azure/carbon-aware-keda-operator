@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -54,7 +53,6 @@ func (c *CarbonForecastConfigMapFetcher) Fetch(ctx context.Context) ([]CarbonFor
 	var cf []CarbonForecast
 	err = json.Unmarshal([]byte(cm.BinaryData[c.ConfigMapKey]), &cf)
 	if err != nil {
-		fmt.Println("got carbon forecast err yo")
 		return nil, err
 	}
 
@@ -73,40 +71,55 @@ func (c *CarbonForecastMockConfigMapFetcher) Fetch(ctx context.Context) ([]Carbo
 		return c.CarbonForecast, nil
 	}
 
-	// create a new dynamically sized array of CarbonForecast
-	c.CarbonForecast = make([]CarbonForecast, 0)
+	// if the configmap does not exist, create it
+	configMapName := "mock-carbon-intensity"
+	configMapNamespace := "kube-system"
+	configMapKey := "data"
 
-	// for 3 hours ago and 7 days in the future loop at each 5 min increment and add a carbon intensity value
-	for i := -3; i < 7*24*12; i++ {
-		// generate a random number between 529 and 580
-		rand.Seed(time.Now().UnixNano())
-		c.CarbonForecast = append(c.CarbonForecast, CarbonForecast{
-			Timestamp: time.Now().UTC().Add(time.Duration(i*5) * time.Minute),
-			Value:     rand.Float64()*51 + 529,
-			Duration:  5,
-		})
-	}
-
-	// marshal the carbon forecast into byte array
-	forecast, err := json.Marshal(c.CarbonForecast)
+	cm := &corev1.ConfigMap{}
+	err := c.Client.Get(ctx, types.NamespacedName{Name: configMapName, Namespace: configMapNamespace}, cm)
 	if err != nil {
-		return nil, err
-	}
+		// create a new dynamically sized array of CarbonForecast
+		c.CarbonForecast = make([]CarbonForecast, 0)
 
-	// create a configmap and pass carbon forecast as binary data
-	cm := &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "carbon-intensity",
-			Namespace: "kube-system",
-		},
-		BinaryData: map[string][]byte{
-			"data": forecast,
-		},
-	}
+		// for 24 hours in the past and 7 days in the future loop at each 5 min increment and add a carbon intensity value
+		for i := -24; i < 7*24*12; i++ {
+			// generate a random number between 529 and 580
+			rand.Seed(time.Now().UnixNano())
+			c.CarbonForecast = append(c.CarbonForecast, CarbonForecast{
+				Timestamp: time.Now().UTC().Add(time.Duration(i*5) * time.Minute),
+				Value:     rand.Float64()*51 + 529,
+				Duration:  5,
+			})
+		}
 
-	// create or update the configmap
-	if err = c.Client.Create(ctx, cm); err != nil {
-		if err = c.Client.Update(ctx, cm); err != nil {
+		// marshal the carbon forecast into byte array
+		forecast, err := json.Marshal(c.CarbonForecast)
+		if err != nil {
+			return nil, err
+		}
+
+		// create a configmap and pass carbon forecast as binary data
+		cm = &corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      configMapName,
+				Namespace: configMapNamespace,
+			},
+			BinaryData: map[string][]byte{
+				configMapKey: forecast,
+			},
+		}
+
+		// create or update the configmap
+		if err = c.Client.Create(ctx, cm); err != nil {
+			if err = c.Client.Update(ctx, cm); err != nil {
+				return nil, err
+			}
+		}
+	} else {
+		// unmarshal the configmap data into a map
+		err = json.Unmarshal([]byte(cm.BinaryData[configMapKey]), &c.CarbonForecast)
+		if err != nil {
 			return nil, err
 		}
 	}

@@ -38,7 +38,7 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 	Context("the controller should be able to mocked data for demo purposes", func() {
 		When("carbonawarekedascaler is set to use mocked data", func() {
 			const (
-				configMapName      = "carbon-intensity"
+				configMapName      = "mock-carbon-intensity"
 				configMapNamespace = "kube-system"
 				configMapKey       = "data"
 			)
@@ -52,7 +52,7 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 				Expect(cf).ShouldNot(BeNil())
 
 				cm := &corev1.ConfigMap{}
-				By("Confirming the ConfigMap named carbon-intensity is found")
+				By("Confirming the ConfigMap named mock-carbon-intensity is found")
 				Expect(k8sClient.Get(ctx, client.ObjectKey{Name: configMapName, Namespace: configMapNamespace}, cm)).Should(Succeed())
 			})
 		})
@@ -132,9 +132,6 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 			carbonAwareKedaScalerName       = "test-carbonawarekedascaler"
 			carbonAwareKedaScalerNamespace  = "default"
 			carbonAwareKedaScalerKedaTarget = "scaledobjects.keda.sh"
-			configMapName                   = "carbon-intensity"
-			configMapNamespace              = "kube-system"
-			configMapKey                    = "data"
 			timeout                         = time.Second * 5
 			interval                        = time.Millisecond * 250
 		)
@@ -257,7 +254,7 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 
 		When("the carbon intensity is within a configured range", func() {
 			const (
-				testConfigMapName      = "mock-carbon-intensity"
+				testConfigMapName      = "another-mock-carbon-intensity"
 				testConfigMapNamespace = "kube-system"
 				testConfigMapKey       = "data"
 			)
