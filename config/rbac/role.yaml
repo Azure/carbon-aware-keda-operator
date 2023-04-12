@@ -24,14 +24,6 @@ rules:
   - create
   - patch
 - apiGroups:
-  - autoscaling
-  resources:
-  - horizontalpodautoscalers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
   - carbonaware.kubernetes.azure.com
   resources:
   - carbonawarekedascalers

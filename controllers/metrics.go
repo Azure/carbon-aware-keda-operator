@@ -46,22 +46,6 @@ var (
 		[]string{"app"},
 	)
 
-	HpaDesiredReplicasMetric = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "carbon_aware_keda_scaler_hpa_desired_replicas",
-			Help: "HPA desired replicas",
-		},
-		[]string{"app"},
-	)
-
-	HpaCurrentReplicasMetric = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "carbon_aware_keda_scaler_hpa_current_replicas",
-			Help: "HPA current replicas",
-		},
-		[]string{"app"},
-	)
-
 	EcoModeOffMetric = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "carbon_aware_keda_scaler_eco_mode_off",
@@ -78,7 +62,5 @@ func init() {
 	metrics.Registry.MustRegister(CarbonIntensityMetric)
 	metrics.Registry.MustRegister(DefaultMaxReplicasMetric)
 	metrics.Registry.MustRegister(MaxReplicasMetric)
-	metrics.Registry.MustRegister(HpaDesiredReplicasMetric)
-	metrics.Registry.MustRegister(HpaCurrentReplicasMetric)
 	metrics.Registry.MustRegister(EcoModeOffMetric)
 }

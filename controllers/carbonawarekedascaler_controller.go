@@ -23,7 +23,6 @@ import (
 	"time"
 
 	kedav1alpha1 "github.com/kedacore/keda/v2/apis/keda/v1alpha1"
-	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -51,7 +50,6 @@ type CarbonAwareKedaScalerReconciler struct {
 //+kubebuilder:rbac:groups=keda.sh,resources=scaledobjects,verbs=get;list;watch;update;patch
 //+kubebuilder:rbac:groups=keda.sh,resources=scaledjobs,verbs=get;list;watch;update;patch
 //+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch
-//+kubebuilder:rbac:groups=autoscaling,resources=horizontalpodautoscalers,verbs=get;list;watch
 //+kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -97,24 +95,21 @@ func (r *CarbonAwareKedaScalerReconciler) Reconcile(ctx context.Context, req ctr
 
 	ReconcilesTotal.WithLabelValues(carbonAwareKedaScaler.Name).Inc()
 
-	// set the carbon forecast fetcher if it is not already set
-	if r.CarbonForecastFetcher == nil {
-		// if mock carbon forecast is enabled use the mock fetcher otherwise, use the configmap fetcher
-		if carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.MockCarbonForecast {
-			r.CarbonForecastFetcher = &CarbonForecastMockConfigMapFetcher{
-				Client: r.Client,
-			}
-			r.Recorder.Event(carbonAwareKedaScaler, "Normal", "CarbonForecastSource", "Using mock carbon forecast")
-		} else if carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.LocalConfigMap != (carbonawarev1alpha1.LocalConfigMap{}) {
-			// fetch the carbon forecast from configmap
-			r.CarbonForecastFetcher = &CarbonForecastConfigMapFetcher{
-				Client:             r.Client,
-				ConfigMapName:      carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.LocalConfigMap.Name,
-				ConfigMapNamespace: carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.LocalConfigMap.Namespace,
-				ConfigMapKey:       carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.LocalConfigMap.Key,
-			}
-			r.Recorder.Event(carbonAwareKedaScaler, "Normal", "CarbonForecastSource", fmt.Sprintf("Using carbon forecast from configmap %s", carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.LocalConfigMap.Name))
+	// if mock carbon forecast is enabled use the mock fetcher otherwise, use the configmap fetcher
+	if carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.MockCarbonForecast {
+		r.CarbonForecastFetcher = &CarbonForecastMockConfigMapFetcher{
+			Client: r.Client,
 		}
+		r.Recorder.Event(carbonAwareKedaScaler, "Normal", "CarbonForecastSource", "Using mock carbon forecast")
+	} else if carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.LocalConfigMap != (carbonawarev1alpha1.LocalConfigMap{}) {
+		// fetch the carbon forecast from configmap
+		r.CarbonForecastFetcher = &CarbonForecastConfigMapFetcher{
+			Client:             r.Client,
+			ConfigMapName:      carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.LocalConfigMap.Name,
+			ConfigMapNamespace: carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.LocalConfigMap.Namespace,
+			ConfigMapKey:       carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.LocalConfigMap.Key,
+		}
+		r.Recorder.Event(carbonAwareKedaScaler, "Normal", "CarbonForecastSource", fmt.Sprintf("Using carbon forecast from configmap %s", carbonAwareKedaScaler.Spec.CarbonIntensityForecastDataSource.LocalConfigMap.Name))
 	}
 
 	// fetch the carbon forecast
@@ -168,6 +163,16 @@ func (r *CarbonAwareKedaScalerReconciler) Reconcile(ctx context.Context, req ctr
 		}
 	}
 
+	// set to max replicas configured when eco mode is disabled
+	if ecoModeStatus.IsDisabled {
+		EcoModeOffMetric.WithLabelValues(carbonAwareKedaScaler.Name, "1").Inc()
+		logger.Info("eco mode disabled", "reason", ecoModeStatus.DisableReason)
+		r.Recorder.Event(carbonAwareKedaScaler, "Warning", "EcoModeDisabled", fmt.Sprintf("Eco mode disabled: %s", ecoModeStatus.DisableReason))
+		maxReplicaCount = &carbonAwareKedaScaler.Spec.EcoModeOff.MaxReplicas
+	} else {
+		EcoModeOffMetric.WithLabelValues(carbonAwareKedaScaler.Name, "0").Inc()
+	}
+
 	// scale the keda target
 	switch {
 	case strings.Contains(string(carbonAwareKedaScaler.Spec.KedaTarget), "scaledobject"):
@@ -182,47 +187,6 @@ func (r *CarbonAwareKedaScalerReconciler) Reconcile(ctx context.Context, req ctr
 			logger.Error(err, "failed to find scaledobject")
 			setStatusCondition(carbonAwareKedaScaler, metav1.ConditionTrue, carbonawarev1alpha1.ReasonTargetFetchError, fmt.Sprintf("failed to find scaledobject: %v", err))
 			return ctrl.Result{RequeueAfter: getRequeueDuration(now, requeueInterval)}, err
-		}
-
-		// get the hpa associated with the scaledobject
-		hpa := &autoscalingv2.HorizontalPodAutoscaler{}
-		err = r.Get(ctx, types.NamespacedName{Name: scaledObject.Status.HpaName, Namespace: scaledObject.Namespace}, hpa)
-		if err != nil && errors.IsNotFound(err) {
-			logger.Error(err, "unable to find hpa")
-			setStatusCondition(carbonAwareKedaScaler, metav1.ConditionTrue, carbonawarev1alpha1.ReasonTargetNotFound, fmt.Sprintf("unable to find hpa: %v", err))
-			return ctrl.Result{RequeueAfter: getRequeueDuration(now, requeueInterval)}, client.IgnoreNotFound(err)
-		} else if err != nil {
-			ReconcileErrorsTotal.WithLabelValues(carbonAwareKedaScaler.Name).Inc()
-			logger.Error(err, "failed to get hpa")
-			setStatusCondition(carbonAwareKedaScaler, metav1.ConditionTrue, carbonawarev1alpha1.ReasonTargetNotFound, fmt.Sprintf("failed to get hpa: %v", err))
-			return ctrl.Result{RequeueAfter: getRequeueDuration(now, requeueInterval)}, err
-		}
-
-		// eco mode is good but don't let performance suffer! if maxReplicaCount is less than what HPA desires then disable the carbon aware scaler
-		if maxReplicaCount != nil && *maxReplicaCount < hpa.Status.DesiredReplicas {
-			ecoModeStatus.IsDisabled = true
-			ecoModeStatus.DisableReason = fmt.Sprintf("Disabling carbon awareness since maxReplicaCount of %d is less than what HPA desires %d", *maxReplicaCount, hpa.Status.DesiredReplicas)
-		}
-
-		// log the current and desired replicas
-		HpaCurrentReplicasMetric.WithLabelValues(carbonAwareKedaScaler.Name).Set(float64(hpa.Status.CurrentReplicas))
-		HpaDesiredReplicasMetric.WithLabelValues(carbonAwareKedaScaler.Name).Set(float64(hpa.Status.DesiredReplicas))
-
-		// set to max replicas configured when eco mode is disabled
-		if ecoModeStatus.IsDisabled {
-			EcoModeOffMetric.WithLabelValues(carbonAwareKedaScaler.Name, "1").Inc()
-			logger.Info("eco mode disabled", "reason", ecoModeStatus.DisableReason)
-			r.Recorder.Event(carbonAwareKedaScaler, "Warning", "EcoModeDisabled", fmt.Sprintf("Eco mode disabled: %s", ecoModeStatus.DisableReason))
-			maxReplicaCount = &carbonAwareKedaScaler.Spec.EcoModeOff.MaxReplicas
-		} else {
-			EcoModeOffMetric.WithLabelValues(carbonAwareKedaScaler.Name, "0").Inc()
-		}
-
-		// get a fresh scaled object to avoid dirty writes
-		err := r.Get(ctx, types.NamespacedName{Name: scaledObject.Name, Namespace: scaledObject.Namespace}, scaledObject)
-		if err != nil {
-			setStatusCondition(carbonAwareKedaScaler, metav1.ConditionTrue, carbonawarev1alpha1.ReasonTargetFetchError, fmt.Sprintf("failed to get scaledobject: %v", err))
-			return ctrl.Result{RequeueAfter: getRequeueDuration(now, requeueInterval)}, client.IgnoreNotFound(err)
 		}
 
 		// ovewrite the scaledobject.Spec.MaxReplicaCount with the max replica count for the current carbon rating
@@ -254,23 +218,6 @@ func (r *CarbonAwareKedaScalerReconciler) Reconcile(ctx context.Context, req ctr
 			logger.Info("failed to get scaledjob", "error", err)
 			setStatusCondition(carbonAwareKedaScaler, metav1.ConditionTrue, carbonawarev1alpha1.ReasonTargetFetchError, fmt.Sprintf("failed to get scaledjob: %v", err))
 			return ctrl.Result{RequeueAfter: getRequeueDuration(now, requeueInterval)}, err
-		}
-
-		// set to max replicas configured when eco mode is disabled
-		if ecoModeStatus.IsDisabled {
-			EcoModeOffMetric.WithLabelValues(carbonAwareKedaScaler.Name, "1").Inc()
-			logger.Info("eco mode disabled", "reason", ecoModeStatus.DisableReason)
-			r.Recorder.Event(carbonAwareKedaScaler, "Warning", "EcoModeDisabled", fmt.Sprintf("Eco mode disabled: %s", ecoModeStatus.DisableReason))
-			maxReplicaCount = &carbonAwareKedaScaler.Spec.EcoModeOff.MaxReplicas
-		} else {
-			EcoModeOffMetric.WithLabelValues(carbonAwareKedaScaler.Name, "0").Inc()
-		}
-
-		// get a fresh scaled job to avoid dirty writes
-		err := r.Get(ctx, types.NamespacedName{Name: scaledJob.Name, Namespace: scaledJob.Namespace}, scaledJob)
-		if err != nil {
-			setStatusCondition(carbonAwareKedaScaler, metav1.ConditionTrue, carbonawarev1alpha1.ReasonTargetFetchError, fmt.Sprintf("failed to get scaledjob: %v", err))
-			return ctrl.Result{RequeueAfter: getRequeueDuration(now, requeueInterval)}, client.IgnoreNotFound(err)
 		}
 
 		// ovewrite the scaledobject.Spec.MaxReplicaCount with the max replica count for the current carbon rating

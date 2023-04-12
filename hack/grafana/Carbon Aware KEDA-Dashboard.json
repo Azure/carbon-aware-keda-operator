@@ -446,30 +446,6 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "carbon_aware_keda_scaler_hpa_desired_replicas{app=\"word-processor-carbon-aware-keda-scaler\"}",
-          "hide": false,
-          "legendFormat": "HPA Desired Replicas",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "carbon_aware_keda_scaler_hpa_current_replicas{app=\"word-processor-carbon-aware-keda-scaler\"}",
-          "hide": false,
-          "legendFormat": "HPA Current Replicas",
-          "range": true,
-          "refId": "C"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
           "expr": "carbon_aware_keda_scaler_default_max_replicas{app=\"word-processor-carbon-aware-keda-scaler\"}",
           "hide": false,
           "legendFormat": "Default Max Replicas",
