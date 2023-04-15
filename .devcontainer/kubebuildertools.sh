@@ -14,3 +14,9 @@ OS_ARCH=$(dpkg --print-architecture)
 curl -Lo ./kind https://kind.sigs.k8s.io/dl/${LATEST_VERSION}/kind-linux-${OS_ARCH}
 chmod +x ./kind
 sudo mv ./kind /usr/local/bin/kind
+
+# install helm
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+sudo ./get_helm.sh
+rm ./get_helm.sh

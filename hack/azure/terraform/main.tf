@@ -65,6 +65,10 @@ output "rg_name" {
   value = azurerm_resource_group.demo.name
 }
 
+output "rg_location" {
+  value = azurerm_resource_group.demo.location
+}
+
 output "aks_name" {
   value = azurerm_kubernetes_cluster.demo.name
 }

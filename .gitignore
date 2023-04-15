@@ -24,3 +24,7 @@ Dockerfile.cross
 *.swp
 *.swo
 *~
+
+.terraform*
+terraform.tfstate
+terraform.tfstate.*

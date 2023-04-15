@@ -7,7 +7,8 @@
       "configureZshAsDefaultShell": true
     },
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/go:1": {}
+    "ghcr.io/devcontainers/features/go:1": {},
+    "ghcr.io/devcontainers/features/terraform:1": {}
   },
   "postCreateCommand": "/bin/sh .devcontainer/kubebuildertools.sh",
   "customizations": {

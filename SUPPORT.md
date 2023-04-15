@@ -1,25 +1,14 @@
-# TODO: The maintainer of this repo has not yet edited this file
-
-**REPO OWNER**: Do you want Customer Service & Support (CSS) support for this product/project?
-
-- **No CSS support:** Fill out this template with information about how to file issues and get help.
-- **Yes CSS support:** Fill out an intake form at [aka.ms/onboardsupport](https://aka.ms/onboardsupport). CSS will work with/help you to determine next steps.
-- **Not sure?** Fill out an intake as though the answer were "Yes". CSS will help you decide.
-
-*Then remove this first heading from this SUPPORT.MD file before publishing your repo.*
-
 # Support
 
-## How to file issues and get help  
+## How to file issues and get help
 
-This project uses GitHub Issues to track bugs and feature requests. Please search the existing 
-issues before filing new issues to avoid duplicates.  For new issues, file your bug or 
-feature request as a new Issue.
+For help, please use the following resources:
 
-For help and questions about using this project, please **REPO MAINTAINER: INSERT INSTRUCTIONS HERE 
-FOR HOW TO ENGAGE REPO OWNERS OR COMMUNITY FOR HELP. COULD BE A STACK OVERFLOW TAG OR OTHER
-CHANNEL. WHERE WILL YOU HELP PEOPLE?**.
+1. Review the [documentation](https://github.com/Azure/carbon-aware-keda-operator/blob/main/README.md)
+2. Search [open issues](https://github.com/Azure/carbon-aware-keda-operator/issues). If your issue is not represented there already, please [open a new one](https://github.com/Azure/carbon-aware-keda-operator/issues/new).
 
-## Microsoft Support Policy  
+This project uses GitHub Issues to track bugs and feature requests. The Carbon Aware KEDA Operator project maintainers will respond to new issues to the best of their abilities.
 
-Support for this **PROJECT or PRODUCT** is limited to the resources listed above.
+## Microsoft Support Policy
+
+Support for this project/product is limited to the resources listed above. This project is **not** covered by the [Microsoft Azure support policy](https://support.microsoft.com/en-us/help/2941892/support-for-linux-and-open-source-technology-in-azure).
