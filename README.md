@@ -134,11 +134,43 @@ To install the Carbon Aware KEDA Operator, please check out the following links.
 
 ## How to set the carbon intensity thresholds in the `CarbonAwareKedaScaler` CRD
 
-When adding `maxReplicasByCarbonIntensity` entries in the custom resource, it is important to understand what the carbon intensity thresholds are since they vary between regions. It is recommended that you do your best to find the minimum and maximum carbon intensity values and set thresholds accordingly.
+When adding `maxReplicasByCarbonIntensity` entries in the custom resource, it is important to understand what the carbon intensity thresholds are since they vary between regions. 
+
+
+The carbon intensity ConfigMap provides minimum and maximum carbon intensity values, to help you set thresholds accordingly.`
+
+```
+#ConfigMap
+
+data:
+  lastHeartbeatTime: # The latest time that the data exporter controller sends the data. 
+  message: # Additional information for user notification, if any. 
+  numOfRecords: # The number can be any value between 0 (no records for the current location) and 24 * 12. 
+  forecastDateTime: # The time when the raw data was generated.
+  minForcast: 437 # min forecast in the data.
+  maxForcast: 571 # max forecast in the data.
+```
 
 > Remember, when energy is dirty (e.g., carbon intensity is high), do less, and when energy is clean (e.g., carbon intensity is low), do more.
 
-To set the thresholds, the idea is to find the range between minimum and maximum carbon intensity ranges and divide them into “buckets”. In the example above, the three thresholds could represent “low”, “medium”, and “high” where a carbon intensity value of 565 and below is considered low, 566 – 635 is medium, and 636 or more is high. Configuring thresholds in an array like this gives you flexibility to create as many thresholds/buckets as needed.
+```
+#CarbonAwareKedaScaler
+
+maxReplicasByCarbonIntensity:            # array of carbon intensity values in ascending order; each threshold value represents the upper limit and previous entry represents lower limit 
+    - carbonIntensityThreshold: 437        # when carbon intensity is 437 or below 
+      maxReplicas: 110                     # do more 
+    - carbonIntensityThreshold: 504        # when carbon intensity is >437 and <=504 
+      maxReplicas: 60 
+    - carbonIntensityThreshold: 571        # when carbon intensity is >504 and <=571 (and beyond) 
+      maxReplicas: 10                      # do less 
+```
+
+To set the thresholds, the idea is to find the range between minimum and maximum carbon intensity ranges and divide them into “buckets”. In the example above the three thresholds could represent “low”, “medium”, and “high” where :
+- a carbon intensity value of 437 and below is considered low, 
+- 438 – 504 is medium intensity, 
+- 505 or more is high intensity. 
+
+Configuring thresholds in an array like this gives you flexibility to create as many thresholds/buckets as needed.
 
 ## How to set the allowed maxReplicas per carbon intensity in the `CarbonAwareKedaScaler` CRD
  
