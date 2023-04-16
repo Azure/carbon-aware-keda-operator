@@ -122,6 +122,8 @@ data:
   **maxForcast**: # max forecast in the data.
 binarydata: 
   **data**: # json marshal of the EmissionsData array.
+```
+
 
 ## Installation & demo
 
