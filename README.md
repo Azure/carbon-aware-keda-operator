@@ -8,28 +8,47 @@ To read more about carbon intensity and carbon awareness, please check out the [
 
 ## How it works
 
-1. Getting the carbon intensity data: 
 
-The carbon aware KEDA operator retrieves the carbon intensity data from the carbon aware SDK, which is a wrapper for electricity data APIs.  
- 
-The operator retrieves 24-hour carbon intensity forecast data every 12 hours1. Upon successful data pull, the old configmap will be deleted and a new configmap with the same name will be created1.  
- 
-Any other Kubernetes operator can read the configmap for utilizing the carbon intensity data1. 
+![image](https://user-images.githubusercontent.com/966110/232306667-7717bb52-fc2e-4564-9c75-d820ab3bf58b.png)
 
- 
+ 1 - Getting the carbon intensity data:
 
-2. Making carbon aware scaling decisions 
+The carbon aware KEDA operator retrieves the carbon intensity data from the carbon aware SDK, which is a wrapper for electricity data APIs. 
+
+The operator retrieves 24-hour carbon intensity forecast data every 12 hours. Upon successful data pull, the old configmap will be deleted and a new configmap with the same name will be created. 
+
+Any other Kubernetes operator can read the configmap for utilizing the carbon intensity data.
+
+<br>
+
+ 2 – Making carbon aware scaling decisions:
+
+Step 0 – As an admin you create a CarbonAwareKedaScaler spec for targetRef : scaledObject or scaledJob
+
+Then the operator will update KEDA scaledObjects and scaledJob `maxReplicaCount` field, based on the current carbon intensity.
+
+
 
 ## Current carbon aware scaling logic 
 
+The current logic for carbon aware scaling is based on carbon intensity metric only, which is independent of the workload usage today.
+
+The operator will not compute a desired replicaCount for your scaledObjects or scaledJobs, as this is the responsibility of KEDA and HPA. The operator would define a ceiling for allowed maxReplicas based on carbon intensity of the current time.
+
+In practice, the operator will throttle workloads and prevent them from bursting during high carbon intensity periods, and allow more scaling when intensity is lower.
 
 ## Use cases 
  
-Low priority and time tolerant batch jobs 
+This operator can be used for low priority and time flexible workloads that support interruptions, for example:
 
-CICD runners 
+- noncritical data backups
+- batch processing jobs
+- Processing of data analytics
+- ML Training jobs
+- (some) CICD jobs
+- Dev & Test environments
 
-Turning off low priority workloads during high carbon intensity is high 
+
 
 ## Installation
 
