@@ -173,7 +173,7 @@ In the example above, we use 3 thresholds that represent “low”, “medium”
 
 - medium bucket : carbon intensity is > 437 and <= 504 (= 370 + 67 + 67),
 
-- high bucket : carbon intensity is > 504 <= 571 (Or higher > than 571, since this is the highest threshold defined in the array)
+- high bucket : carbon intensity is > 504 and <= 571 (Or higher > than 571, since this is the highest threshold defined in the array)
 
 Configuring thresholds in an array like this gives you flexibility to create as many thresholds/buckets as needed.
 
