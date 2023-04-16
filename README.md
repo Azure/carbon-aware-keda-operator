@@ -132,13 +132,6 @@ The following metrics are exported by the operator:
 - `Default MaxReplicas`: The default value of `MaxReplicas` when carbon awanress is disabled, aka "ecoMode off".
 
 
-# TODO: As the maintainer of this project, please make a few updates:
-
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
-
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
