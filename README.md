@@ -56,6 +56,15 @@ This operator can be used for low priority and time flexible workloads that supp
 
 Once the "carbon aware KEDA operator" installed, you can deploy a custom resource called `CarbonAwareKedaScaler` to set the max replicas, KEDA can scale up to, based on carbon intensity.
 
+The `CarbonAwareKedaScaler` CRD defines the following settings:
+
+- The `carbonIntensityForecastDataSource` field specifies the data source for carbon intensity forecast data and can be set to either use mock carbon forecast data or a configmap for carbon forecast data. 
+
+- The `maxReplicasByCarbonIntensity` field specifies an array of carbon intensity values in ascending order; each threshold value represents the upper limit and previous entry represents lower limit. When carbon intensity is below a certain threshold value, more replicas are created and when it’s above a certain threshold value, fewer replicas are created. 
+
+- The `ecoModeOff` field contains settings to disable carbon awareness; it can override based on high intensity duration or time schedules.
+
+
 ```bash
 kubectl apply -f - <<EOF
 apiVersion: carbonaware.kubernetes.azure.com/v1alpha1 
@@ -97,8 +106,8 @@ EOF
 ## Installation & demo
 
 To install the Carbon Aware KEDA Operator, please check out the following links.
--	[Install on AKS](carbon-aware-keda-operator/azure.md at main · Azure/carbon-aware-keda-operator (github.com))
--	[Install on Kind](carbon-aware-keda-operator/kind.md at main · Azure/carbon-aware-keda-operator (github.com))
+-	[Install on AKS](/demo/azure.md)
+-	[Install on Kind](/demo/kind.md))
 
 
 ## How to set the carbon intensity thresholds in the `CarbonAwareKedaScaler` CRD
