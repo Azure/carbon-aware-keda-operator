@@ -9,7 +9,8 @@ To read more about carbon intensity and carbon awareness, please check out this 
 ## How it works
 
 
-![image](https://user-images.githubusercontent.com/966110/232321712-94e7cce9-1810-40ab-828c-ab8015053320.png)
+![image](https://user-images.githubusercontent.com/966110/232321762-bb114716-f719-4e1f-9dc0-20680c94ab52.png)
+
 
 
  1 - Getting the carbon intensity data:
