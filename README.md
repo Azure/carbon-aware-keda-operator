@@ -147,7 +147,7 @@ data:
   message: # Additional information for user notification, if any. 
   numOfRecords: # The number can be any value between 0 (no records for the current location) and 24 * 12. 
   forecastDateTime: # The time when the raw data was generated.
-  minForcast: 437 # min forecast in the data.
+  minForcast: 370 # min forecast in the data.
   maxForcast: 571 # max forecast in the data.
 ```
 
@@ -165,10 +165,17 @@ maxReplicasByCarbonIntensity:            # array of carbon intensity values in a
       maxReplicas: 10                      # do less 
 ```
 
-To set the thresholds, the idea is to find the range between minimum and maximum carbon intensity ranges and divide them into “buckets”. In the example above the three thresholds could represent “low”, “medium”, and “high” where :
-- a carbon intensity value of 437 and below is considered low, 
-- 438 – 504 is medium intensity, 
-- 505 or more is high intensity. 
+To set the thresholds, the idea is to find the range between minimum and maximum carbon intensity ranges and divide them into “buckets”. 
+
+In the example above, we use 3 thresholds that represent “low”, “medium”, and “high” where :
+
+- the 3 buckets size is defined by : (max - min) / 3 = (571 - 370) / 3 = 67
+
+- low bucket : carbon intensity is equal or lower to 437 (= 370 + 67),
+
+- medium bucket : carbon intensity is between 438 and 504 (= 370 + 67 + 67),
+
+- high bucket : carbon intensity is 571 or higher
 
 Configuring thresholds in an array like this gives you flexibility to create as many thresholds/buckets as needed.
 
