@@ -2,7 +2,7 @@
 
 This repo provides a Kubernetes operator that aims to reduce carbon emissions by helping KEDA scale Kubernetes workloads based on carbon intensity. Carbon intensity is a measure of how much carbon dioxide is emitted per unit of energy consumed. By scaling workloads according to the carbon intensity of the region or grid where they run, we can optimize the carbon efficiency and environmental impact of our applications.
 
-The operator uses carbon intensity data from third party sources such as [WattTime](https://www.watttime.org/), [Electricity Map](https://www.electricitymap.org/) or any other provider, to dynamically adjust the scaling behavior of KEDA. Administrators can configure the operator to scale workloads up or down depending on the carbon intensity threshold and the workload demand. The operator does not require any application or workload code change, and it works with any KEDA scaler.
+The operator uses carbon intensity data from third party sources such as [WattTime](https://www.watttime.org/), [Electricity Map](https://www.electricitymap.org/) or any other provider, to dynamically adjust the scaling behavior of KEDA. The operator does not require any application or workload code change, and it works with any KEDA scaler.
 
 To read more about carbon intensity and carbon awareness, please check out the [Green Software Foundation](https://learn.greensoftware.foundation/carbon-awareness/).
 
