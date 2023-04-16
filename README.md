@@ -169,7 +169,7 @@ Configuring thresholds in an array like this gives you flexibility to create as 
 
 ### How do I set the allowed maxReplicas per carbon intensity in the `CarbonAwareKedaScaler` CRD
  
-It’s up to you as an admin or a developer, to decide of the carbon aware scaling behavior for your workload :
+It’s up to you as an admin or a developer, to decide the carbon aware scaling behavior for your workload:
 
 - You could decide to use only one carbon intensity thresholds or several (such as low, medium, high buckets)
 - You could scale to zero during high carbon intensity periods, or keep a minimal replicas running for your workload.
