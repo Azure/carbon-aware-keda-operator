@@ -2,9 +2,9 @@
 
 This repo provides a Kubernetes operator that aims to reduce carbon emissions by helping KEDA scale Kubernetes workloads based on carbon intensity. Carbon intensity is a measure of how much carbon dioxide is emitted per unit of energy consumed. By scaling workloads according to the carbon intensity of the region or grid where they run, we can optimize the carbon efficiency and environmental impact of our applications.
 
-The operator uses carbon intensity data from third party sources such as [WattTime](https://www.watttime.org/), [Electricity Map](https://www.electricitymap.org/) or any other provider, to dynamically adjust the scaling behavior of KEDA. The operator does not require any application or workload code change, and it works with any KEDA scaler.
+The operator can use carbon intensity data from third party sources such as [WattTime](https://www.watttime.org/), [Electricity Map](https://www.electricitymap.org/) or any other provider, to dynamically adjust the scaling behavior of KEDA. The operator does not require any application or workload code change, and it works with any KEDA scaler.
 
-To read more about carbon intensity and carbon awareness, please check out the [Green Software Foundation](https://learn.greensoftware.foundation/carbon-awareness/).
+To read more about carbon intensity and carbon awareness, please check out this course from [Green Software Foundation](https://learn.greensoftware.foundation/carbon-awareness/).
 
 ## How it works
 
@@ -33,11 +33,11 @@ Then the operator will update KEDA scaledObjects and scaledJob `maxReplicaCount`
 
 ## Current carbon aware scaling logic 
 
-The current logic for carbon aware scaling is based on carbon intensity metric only, which is independent of the workload usage today.
+The current logic for carbon aware scaling is based on carbon intensity metric only, _which is independent of the workload usage_.
 
-The operator will not compute a desired replicaCount for your scaledObjects or scaledJobs, as this is the responsibility of KEDA and HPA. The operator would define a ceiling for allowed maxReplicas based on carbon intensity of the current time.
+The operator will not compute a desired replicaCount for your scaledObjects or scaledJobs, as this is the responsibility of KEDA and HPA. The operator would define a "ceiling for allowed maxReplicas" based on carbon intensity of the current time.
 
-In practice, the operator will throttle workloads and prevent them from bursting during high carbon intensity periods, and allow more scaling when intensity is lower.
+In practice, the operator will throttle workloads and prevent them from bursting during high carbon intensity periods, and allow more scaling when carbon intensity is lower.
 
 ## Use cases 
  
