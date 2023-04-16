@@ -37,7 +37,7 @@ The current logic for carbon aware scaling is based on carbon intensity metric o
 
 The operator will not compute a desired replicaCount for your scaledObjects or scaledJobs, as this is the responsibility of KEDA and HPA. The operator would define a "ceiling for allowed maxReplicas" based on carbon intensity of the current time.
 
-In practice, the operator will throttle workloads and prevent them from bursting during high carbon intensity periods, and allow more scaling when carbon intensity is lower.
+In practice, this operator will throttle workloads and prevent them from bursting during high carbon intensity periods, and allow more scaling when carbon intensity is lower.
 
 ## Use cases 
  
