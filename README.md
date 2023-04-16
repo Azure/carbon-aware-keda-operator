@@ -105,6 +105,24 @@ To install the Carbon Aware KEDA Operator, please check out the following links.
 -	[Install on Kind](carbon-aware-keda-operator/kind.md at main · Azure/carbon-aware-keda-operator (github.com))
 
 
+## How to set the carbon intensity thresholds
+
+When adding `maxReplicasByCarbonIntensity` entries in the custom resource, it is important to understand what the carbon intensity thresholds are since they vary between regions. It is recommended that you do your best to find the minimum and maximum carbon intensity values and set thresholds accordingly.
+
+> Remember, when energy is dirty (e.g., carbon intensity is high), do less, and when energy is clean (e.g., carbon intensity is low), do more.
+
+To set the thresholds, the idea is to find the range between minimum and maximum carbon intensity ranges and divide them into “buckets”. In the example above, the three thresholds could represent “low”, “medium”, and “high” where a carbon intensity value of 565 and below is considered low, 566 – 635 is medium, and 636 or more is high. Configuring thresholds in an array like this gives you flexibility to create as many thresholds/buckets as needed.
+
+## How to set the allowed maxReplicas per carbon intensity 
+
+make this paragrpah in MD format; don"t add other text,just transform to MD format
+ 
+It’s up to you as an admin or a developer, to decide of the carbon aware scaling behavior for your workload :
+- You could decide to enable carbon awareness only when carbon intensity is in the high rates.
+- You could scale to zero during high carbon intensity periods, or keep a minimal replicas running for your workload.
+- Depending on the nature of the workload and its constraints, you would decide what scaling limits to use for you workload.
+
+
 # Exported Metrics
 
 The following metrics are exported by the operator:
