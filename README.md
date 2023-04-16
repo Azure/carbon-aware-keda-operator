@@ -50,9 +50,59 @@ This operator can be used for low priority and time flexible workloads that supp
 
 
 
-## Installation
+## How to use it
+
+Once the "carbon aware KEDA operator" installed, you can now deploy a custom resource called `CarbonAwareKedaScaler` to set the max replicas, KEDA can scale up to, based on carbon intensity.
+
+```bash
+kubectl apply -f - <<EOF
+apiVersion: carbonaware.kubernetes.azure.com/v1alpha1 
+kind: CarbonAwareKedaScaler 
+metadata: 
+  labels: 
+    app.kubernetes.io/name: carbonawarekedascaler 
+    app.kubernetes.io/instance: carbonawarekedascaler-sample 
+    app.kubernetes.io/part-of: carbon-aware-keda-operator 
+    app.kubernetes.io/managed-by: kustomize 
+    app.kubernetes.io/created-by: carbon-aware-keda-operator 
+  name: carbon-aware-word-processor-scaler
+spec: 
+  kedaTarget: scaledobjects.keda.sh 
+  kedaTargetRef: 
+    name: word-processor-scaler
+    namespace: default 
+  carbonIntensityForecastDataSource:       # carbon intensity forecast data source 
+    mockCarbonForecast: false              # [OPTIONAL] use mock carbon forecast data 
+    localConfigMap:                        # [OPTIONAL] use configmap for carbon forecast data 
+      name: carbon-intensity 
+      namespace: kube-system
+      key: data 
+  maxReplicasByCarbonIntensity:            # array of carbon intensity values in ascending order; each threshold value represents the upper limit and previous entry represents lower limit 
+    - carbonIntensityThreshold: 437        # when carbon intensity is 437 or below 
+      maxReplicas: 110                     # do more 
+    - carbonIntensityThreshold: 504        # when carbon intensity is >437 and <=504 
+      maxReplicas: 60 
+    - carbonIntensityThreshold: 571        # when carbon intensity is >504 and <=571 (and beyond) 
+      maxReplicas: 10                      # do less 
+  ecoModeOff:                              # [OPTIONAL] settings to override carbon awareness; can override based on high intensity duration or schedules 
+    maxReplicas: 100                       # when carbon awareness is disabled, use this value 
+    carbonIntensityDuration:               # [OPTIONAL] disable carbon awareness when carbon intensity is high for this length of time 
+      carbonIntensityThreshold: 555        # when carbon intensity is equal to or above this value, consider it high 
+      overrideEcoAfterDurationInMins: 45   # if carbon intensity is high for this many hours disable ecomode 
+    customSchedule:                        # [OPTIONAL] disable carbon awareness during specified time periods 
+      - startTime: "2023-04-28T16:45:00Z"  # start time in UTC 
+        endTime: "2023-04-28T17:00:59Z"    # end time in UTC 
+    recurringSchedule:                     # [OPTIONAL] disable carbon awareness during specified recurring time periods 
+      - "* 23 * * 1-5"                     # disable every weekday from 11pm to 12am UTC 
+EOF
+```
 
 
+## Installation & demo
+
+To install the Carbon Aware KEDA Operator, please check out the following links.
+-	[Install on AKS](carbon-aware-keda-operator/azure.md at main · Azure/carbon-aware-keda-operator (github.com))
+-	[Install on Kind](carbon-aware-keda-operator/kind.md at main · Azure/carbon-aware-keda-operator (github.com))
 
 
 
