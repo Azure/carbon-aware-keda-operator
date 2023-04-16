@@ -62,11 +62,10 @@ The `CarbonAwareKedaScaler` CRD defines the following settings:
 
 - The `maxReplicasByCarbonIntensity` field specifies an array of carbon intensity values in ascending order; each threshold value represents the upper limit and previous entry represents lower limit. When carbon intensity is below a certain threshold value, more replicas are created and when it’s above a certain threshold value, fewer replicas are created. 
 
-- The `ecoModeOff` field contains settings to disable carbon awareness; it can override based on high intensity duration or time schedules.
+- The `ecoModeOff` field contains settings to disable carbon awareness; it can be overriden based on high intensity duration or time schedules.
 
 
-```bash
-kubectl apply -f - <<EOF
+```yaml
 apiVersion: carbonaware.kubernetes.azure.com/v1alpha1 
 kind: CarbonAwareKedaScaler 
 metadata: 
@@ -99,7 +98,6 @@ spec:
         endTime: "2023-04-28T17:00:59Z"    # end time in UTC 
     recurringSchedule:                     # [OPTIONAL] disable carbon awareness during specified recurring time periods 
       - "* 23 * * 1-5"                     # disable every weekday from 11pm to 12am UTC 
-EOF
 ```
 
 ## Format of the input ConfigMap
@@ -134,7 +132,7 @@ To install the Carbon Aware KEDA Operator, please check out the following links.
 
 ## How to set the carbon intensity thresholds in the `CarbonAwareKedaScaler` CRD
 
-When adding `maxReplicasByCarbonIntensity` entries in the custom resource, it is important to understand what the carbon intensity thresholds are since they vary between regions. 
+When adding `maxReplicasByCarbonIntensity` entries in the custom resource, it is important to understand what the carbon intensity thresholds are, since they vary between regions. 
 
 
 The carbon intensity ConfigMap provides minimum and maximum carbon intensity values, to help you set thresholds accordingly.`
