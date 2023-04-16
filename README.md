@@ -43,7 +43,7 @@ In practice, this operator will throttle workloads and prevent them from burstin
  
 This operator can be used for low priority and time flexible workloads that support interruptions, for example:
 
-- noncritical data backups
+- non critical data backups
 - batch processing jobs
 - Processing of data analytics
 - ML Training jobs
