@@ -165,9 +165,9 @@ maxReplicasByCarbonIntensity:            # array of carbon intensity values in a
       maxReplicas: 10                      # do less 
 ```
 
-To set the thresholds, the idea is to find the range between minimum and maximum carbon intensity ranges and divide them into “buckets”. 
+To set the thresholds, the idea is to find ranges between minimum and maximum carbon intensity and divide them into “buckets”. 
 
-In the example above, we use 3 thresholds that represent “low”, “medium”, and “high” where :
+In the example above, we use 3 thresholds that represent “low”, “medium”, and “high” buckets where :
 
 - the 3 buckets size is defined by : (max - min) / 3 = (571 - 370) / 3 = 67
 
@@ -175,7 +175,7 @@ In the example above, we use 3 thresholds that represent “low”, “medium”
 
 - medium bucket : carbon intensity is between 438 and 504 (= 370 + 67 + 67),
 
-- high bucket : carbon intensity is 571 or higher
+- high bucket : carbon intensity is between 505 and 571 (Or higher than 571)
 
 Configuring thresholds in an array like this gives you flexibility to create as many thresholds/buckets as needed.
 
