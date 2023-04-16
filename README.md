@@ -191,7 +191,7 @@ It’s up to you as an admin or a developer, to decide of the carbon aware scali
 The following metrics are exported by the operator:
 
 - `carbon_intensity`: The carbon intensity of the electricity grid region where Kubernetes cluster is deployed
-- `MaxReplicas`: The maximum number of replicas that can be scaled up to by the KEDA scaledObject or scaledJob.
+- `MaxReplicas`: The maximum number of replicas that can be scaled up to by the KEDA scaledObject or scaledJob, based on carbon intensity.
 - `Default MaxReplicas`: The default value of `MaxReplicas` when carbon awanress is disabled, aka "ecoMode off".
 
 
