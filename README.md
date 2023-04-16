@@ -52,22 +52,16 @@ This operator can be used for low priority and time flexible workloads that supp
 
 ## How to use it
 
-Once the "carbon aware KEDA operator" installed, you can now deploy a custom resource called `CarbonAwareKedaScaler` to set the max replicas, KEDA can scale up to, based on carbon intensity.
+Once the "carbon aware KEDA operator" installed, you can deploy a custom resource called `CarbonAwareKedaScaler` to set the max replicas, KEDA can scale up to, based on carbon intensity.
 
 ```bash
 kubectl apply -f - <<EOF
 apiVersion: carbonaware.kubernetes.azure.com/v1alpha1 
 kind: CarbonAwareKedaScaler 
 metadata: 
-  labels: 
-    app.kubernetes.io/name: carbonawarekedascaler 
-    app.kubernetes.io/instance: carbonawarekedascaler-sample 
-    app.kubernetes.io/part-of: carbon-aware-keda-operator 
-    app.kubernetes.io/managed-by: kustomize 
-    app.kubernetes.io/created-by: carbon-aware-keda-operator 
   name: carbon-aware-word-processor-scaler
 spec: 
-  kedaTarget: scaledobjects.keda.sh 
+  kedaTarget: scaledobjects.keda.sh        # can be used for ScaledObjects & ScaledJobs
   kedaTargetRef: 
     name: word-processor-scaler
     namespace: default 
@@ -105,7 +99,7 @@ To install the Carbon Aware KEDA Operator, please check out the following links.
 -	[Install on Kind](carbon-aware-keda-operator/kind.md at main · Azure/carbon-aware-keda-operator (github.com))
 
 
-## How to set the carbon intensity thresholds
+## How to set the carbon intensity thresholds in the `CarbonAwareKedaScaler` CRD
 
 When adding `maxReplicasByCarbonIntensity` entries in the custom resource, it is important to understand what the carbon intensity thresholds are since they vary between regions. It is recommended that you do your best to find the minimum and maximum carbon intensity values and set thresholds accordingly.
 
@@ -113,11 +107,10 @@ When adding `maxReplicasByCarbonIntensity` entries in the custom resource, it is
 
 To set the thresholds, the idea is to find the range between minimum and maximum carbon intensity ranges and divide them into “buckets”. In the example above, the three thresholds could represent “low”, “medium”, and “high” where a carbon intensity value of 565 and below is considered low, 566 – 635 is medium, and 636 or more is high. Configuring thresholds in an array like this gives you flexibility to create as many thresholds/buckets as needed.
 
-## How to set the allowed maxReplicas per carbon intensity 
-
-make this paragrpah in MD format; don"t add other text,just transform to MD format
+## How to set the allowed maxReplicas per carbon intensity in the `CarbonAwareKedaScaler` CRD
  
 It’s up to you as an admin or a developer, to decide of the carbon aware scaling behavior for your workload :
+
 - You could decide to enable carbon awareness only when carbon intensity is in the high rates.
 - You could scale to zero during high carbon intensity periods, or keep a minimal replicas running for your workload.
 - Depending on the nature of the workload and its constraints, you would decide what scaling limits to use for you workload.
