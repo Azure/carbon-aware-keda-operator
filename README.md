@@ -183,9 +183,9 @@ Configuring thresholds in an array like this gives you flexibility to create as 
  
 It’s up to you as an admin or a developer, to decide of the carbon aware scaling behavior for your workload :
 
-- You could decide to enable carbon awareness only when carbon intensity is in the high rates.
+- You could decide to use only one or several carbon intensity thresholds (such as low, medium, high buckets)
 - You could scale to zero during high carbon intensity periods, or keep a minimal replicas running for your workload.
-- Depending on the nature of the workload and its constraints, you would decide what scaling limits to use for you workload.
+- Depending on the nature of the workload and its constraints, you would decide what scaling limits are suitable for you workload.
 
 
 # Exported Metrics
