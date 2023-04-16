@@ -143,10 +143,6 @@ The carbon intensity ConfigMap provides minimum and maximum carbon intensity val
 #ConfigMap
 
 data:
-  lastHeartbeatTime: # The latest time that the data exporter controller sends the data. 
-  message: # Additional information for user notification, if any. 
-  numOfRecords: # The number can be any value between 0 (no records for the current location) and 24 * 12. 
-  forecastDateTime: # The time when the raw data was generated.
   minForcast: 370 # min forecast in the data.
   maxForcast: 571 # max forecast in the data.
 ```
