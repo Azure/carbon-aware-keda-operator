@@ -132,7 +132,7 @@ To install the Carbon Aware KEDA Operator, please check out the following links.
 
 ## How to set the carbon intensity thresholds in the `CarbonAwareKedaScaler` CRD
 
-When adding `maxReplicasByCarbonIntensity` entries in the custom resource, it is important to understand what the carbon intensity thresholds are, since they vary between regions. 
+When adding `maxReplicasByCarbonIntensity` entries in the custom resource, it is important to understand what the carbon intensity values are, since they vary between regions. 
 
 
 The carbon intensity ConfigMap provides minimum and maximum carbon intensity values, to help you set thresholds accordingly.`
