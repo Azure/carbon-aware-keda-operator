@@ -107,7 +107,7 @@ EOF
 
 To install the Carbon Aware KEDA Operator, please check out the following links.
 -	[Install on AKS](/demo/azure.md)
--	[Install on Kind](/demo/kind.md))
+-	[Install on Kind](/demo/kind.md)
 
 
 ## How to set the carbon intensity thresholds in the `CarbonAwareKedaScaler` CRD
