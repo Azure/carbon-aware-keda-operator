@@ -21,7 +21,7 @@ In our demo, we used the [Kubernetes carbon intensity exporter](https://github.c
 
 The "Kubernetes carbon intensity exporter" retrieves 24-hour carbon intensity forecast data every 12 hours. Upon successful data pull, the old configmap will be deleted and a new configmap with the same name will be created. 
 
-Any other Kubernetes operator can read the configMap for utilizing the carbon intensity data.
+Any other Kubernetes operator or workload can read the configMap for utilizing the carbon intensity data.
 
 <br>
 
