@@ -105,6 +105,14 @@ To install the Carbon Aware KEDA Operator, please check out the following links.
 -	[Install on Kind](carbon-aware-keda-operator/kind.md at main · Azure/carbon-aware-keda-operator (github.com))
 
 
+# Exported Metrics
+
+The following metrics are exported by the operator:
+
+- `carbon_intensity`: The carbon intensity of the electricity grid region where Kubernetes cluster is deployed
+- `MaxReplicas`: The maximum number of replicas that can be scaled up to by the KEDA scaledObject or scaledJob.
+- `Default MaxReplicas`: The default value of `MaxReplicas` when carbon awanress is disabled, aka "ecoMode off".
+
 
 # TODO: As the maintainer of this project, please make a few updates:
 
