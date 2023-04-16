@@ -118,10 +118,10 @@ data:
   message: # Additional information for user notification, if any. 
   numOfRecords: # The number can be any value between 0 (no records for the current location) and 24 * 12. 
   forecastDateTime: # The time when the raw data was generated.
-  **minForcast**: # min forecast in the data.
-  **maxForcast**: # max forecast in the data.
+  minForcast: # min forecast in the data.
+  maxForcast: # max forecast in the data.
 binarydata: 
-  **data**: # json marshal of the EmissionsData array.
+  data: # json marshal of the EmissionsData array.
 ```
 
 
