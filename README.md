@@ -136,6 +136,8 @@ When adding `maxReplicasByCarbonIntensity` entries in the custom resource, it is
 
 
 The carbon intensity ConfigMap provides minimum and maximum carbon intensity values, to help you set thresholds accordingly.`
+> The configMap will show min & max carbon intensity forecasted values, for the next 24h, 72h, next week...depending on the data source provider you use. 
+> To have a more accurate min & max carbon intensity values, you should look at monthly or yearly data from your carbon intensity provider.
 
 ```
 #ConfigMap
