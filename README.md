@@ -102,6 +102,26 @@ spec:
 EOF
 ```
 
+## Format of the input ConfigMap
+
+The [generated carbon intensity configMap](https://github.com/Azure/kubernetes-carbon-intensity-exporter#integration) has the following format:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: carbonintensity
+  namespace: kube-system
+immutable: true
+data:
+  lastHeartbeatTime: # The latest time that the data exporter controller sends the data. 
+  message: # Additional information for user notification, if any. 
+  numOfRecords: # The number can be any value between 0 (no records for the current location) and 24 * 12. 
+  forecastDateTime: # The time when the raw data was generated.
+  **minForcast**: # min forecast in the data.
+  **maxForcast**: # max forecast in the data.
+binarydata: 
+  **data**: # json marshal of the EmissionsData array.
 
 ## Installation & demo
 
