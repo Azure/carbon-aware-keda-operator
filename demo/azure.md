@@ -270,13 +270,14 @@ cd kubernetes-carbon-intensity-exporter
 Using Helm, install the Carbon Intensity Exporter Operator into the AKS cluster.
 
 ```bash
+export LOCATION=westus
 export WATTTIME_USERNAME=<YOUR_USERNAME> 
 export WATTTIME_PASSWORD=<YOUR_PASSWORD>
 
 helm install carbon-intensity-exporter \
   --set carbonDataExporter.region=$LOCATION \
-  --set apiServer.username=$WATTTIME_USERNAME \
-  --set apiServer.password=$WATTTIME_PASSWORD \
+  --set wattTime.username=$WATTTIME_USERNAME \
+  --set wattTime.password=$WATTTIME_PASSWORD \
   ./charts/carbon-intensity-exporter
 
 # go back to repo directory
