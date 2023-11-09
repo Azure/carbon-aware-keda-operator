@@ -13,7 +13,7 @@ resource "random_pet" "demo" {
 
 resource "azurerm_resource_group" "demo" {
   name     = "rg-${random_pet.demo.id}"
-  location = "westeurope"
+  location = "westus"
 }
 
 resource "azurerm_log_analytics_workspace" "demo" {
@@ -32,7 +32,7 @@ resource "azurerm_kubernetes_cluster" "demo" {
 
   default_node_pool {
     name                = "default"
-    vm_size             = "Standard_D2s_v5"
+    vm_size             = "Standard_D2s_v3"
     enable_auto_scaling = true
     min_count           = 1
     max_count           = 10
