@@ -1,6 +1,15 @@
 # Building Carbon Awareness with KEDA - KubeConNA 2023 Demo
 
-Before you begin, you will need Docker, kubectl, and helm installed on your local machine.
+This walkthrough will enable you to run the demo that was [presented at KubeConNA 2023](https://kccncna2023.sched.com/event/5c8392bdd9871c46921c90493376abfa). The demo will show you how to use the Carbon Aware KEDA Operator to scale a workload based on the carbon intensity forecast of a region.
+
+Before you begin, you will need the following:
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- [helm](https://helm.sh)
+- [jq](https://stedolan.github.io/jq/download/)
+- [WattTime account](https://www.watttime.org/api-documentation/#register-new-user)
 
 Start by creating a new KIND cluster.
 
@@ -13,8 +22,7 @@ Install the Carbon Aware KEDA Operator.
 ```sh
 kubectl apply -f "https://github.com/Azure/carbon-aware-keda-operator/releases/download/v0.2.0/carbonawarekedascaler-v0.2.0.yaml"
 ```
-
-Export your WattTime credentials as environment variables.
+Sign up for a free WattTime account [here](https://www.watttime.org/api-documentation/#register-new-user) and export your WattTime credentials as environment variables.
 
 ```sh
 export WT_USERNAME=<REPLACE_WITH_YOUR_WATTIME_USERNAME>
@@ -159,7 +167,7 @@ Once the Prometheus Operator and Grafana is running, you can port forward Grafan
 kubectl port-forward svc/grafana 3000:3000 -n monitoring
 ```
 
-Open a web browser and navigate to http://localhost:3000. Login into Grafana using the default username and password of `admin` and `admin`. Then dashboard menu item, click on import then import the [`hack/grafana/Carbon Aware KEDA-Dashboard.json`](hack/grafana/Carbon Aware KEDA-Dashboard.json) file and set Prometheus as the data source.
+Open a web browser and navigate to http://localhost:3000. Login into Grafana using the default username and password of `admin` and `admin`. Then dashboard menu item, click on import then import the [`hack/grafana/Carbon Aware KEDA-Dashboard.json`](../hack/grafana/Carbon Aware KEDA-Dashboard.json) file and set Prometheus as the data source.
 
 You should start to see data being populated in the dashboard.
 
