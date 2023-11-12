@@ -261,27 +261,18 @@ To test with real data from the Carbon Aware SDK, head over to this [repo](https
 
 If you do not have WattTime API credentials you can skip this step and still test this operator using mock carbon intensity data
 
-```bash
-cd /tmp
-git clone https://github.com/Azure/kubernetes-carbon-intensity-exporter.git
-cd kubernetes-carbon-intensity-exporter
-```
-
 Using Helm, install the Carbon Intensity Exporter Operator into the AKS cluster.
 
 ```bash
-export LOCATION=westus
-export WATTTIME_USERNAME=<YOUR_USERNAME> 
-export WATTTIME_PASSWORD=<YOUR_PASSWORD>
+export REGION=westus
+export WT_USERNAME=<YOUR_USERNAME> 
+export WT_PASSWORD=<YOUR_PASSWORD>
 
-helm install carbon-intensity-exporter \
-  --set carbonDataExporter.region=$LOCATION \
-  --set wattTime.username=$WATTTIME_USERNAME \
-  --set wattTime.password=$WATTTIME_PASSWORD \
-  ./charts/carbon-intensity-exporter
-
-# go back to repo directory
-cd /workspaces/carbon-aware-keda-operator
+helm install carbon-intensity-exporter oci://ghcr.io/azure/kubernetes-carbon-intensity-exporter/charts/carbon-intensity-exporter \
+  --version v0.3.0 \
+  --set carbonDataExporter.region=$REGION \
+  --set wattTime.username=$WT_USERNAME \
+  --set wattTime.password=$WT_PASSWORD
 ```
 
 Verify carbon intensity data is in place.
