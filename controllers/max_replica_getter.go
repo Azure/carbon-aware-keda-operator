@@ -17,6 +17,11 @@ func getMaxReplicas(forecast *CarbonForecast, configs []carbonawarev1alpha1.Carb
 	} else {
 		ci := forecast.Value
 
+		// if the carbon intensity value is zero, the forecast entry has no measured value — treat as missing data
+		if ci == 0 {
+			return nil, fmt.Errorf("carbon intensity value is zero or missing")
+		}
+
 		// sort to ensure that configured carbon intensity thresholds are sorted is in ascending order to better evaluate lower and upper bounds
 		sort.Slice(configs, func(i, j int) bool {
 			return configs[i].CarbonIntensityThreshold < configs[j].CarbonIntensityThreshold

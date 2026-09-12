@@ -628,6 +628,26 @@ var _ = Describe("scenarios for the carbon aware KEDA Scaler", func() {
 			})
 		})
 
+		When("the forecasted carbon intensity value is zero", func() {
+			It("should return an error so the caller falls back to eco-mode-off", func() {
+				var maxReplicaConfig *int32 = new(int32)
+				*maxReplicaConfig = 10
+				forecast := &CarbonForecast{
+					Timestamp: time.Now().UTC(),
+					Value:     0,
+					Duration:  5,
+				}
+				maxReplicas, err := getMaxReplicas(forecast, []carbonawarev1alpha1.CarbonIntensityConfig{
+					{
+						MaxReplicas:              maxReplicaConfig,
+						CarbonIntensityThreshold: 100,
+					},
+				})
+				Expect(err).To(HaveOccurred())
+				Expect(maxReplicas).To(BeNil())
+			})
+		})
+
 		When("the forecasted carbon intensity is 100 and max replicas is set to 10", func() {
 			var configs []carbonawarev1alpha1.CarbonIntensityConfig
 
