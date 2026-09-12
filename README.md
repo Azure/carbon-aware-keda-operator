@@ -45,7 +45,7 @@ In practice, this operator will throttle workloads and prevent them from burstin
 
 ## How to use it
 
-Once the "carbon aware KEDA operator" is installed, you can deploy a custom resource called `CarbonAwareKedaScaler` to set the max replicas, KEDA can scale up to, based on carbon intensity.
+Once the "carbon aware KEDA operator" is installed ([from the releases](https://github.com/Azure/carbon-aware-keda-operator/releases)), you can deploy a custom resource called `CarbonAwareKedaScaler` to set the max replicas, KEDA can scale up to, based on carbon intensity.
 
 The `CarbonAwareKedaScaler` CRD defines the following settings:
 
