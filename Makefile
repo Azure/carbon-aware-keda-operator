@@ -2,7 +2,7 @@
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
-ENVTEST_K8S_VERSION = 1.26.0
+ENVTEST_K8S_VERSION = 1.29.0
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -130,7 +130,7 @@ kind-deploy: manifests kustomize docker-build kind-create ## Deploy controller t
 	$(KIND) load docker-image ${IMG}
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
-	kubectl apply -f hack/keda/keda-2.10.0.yaml
+	kubectl apply -f hack/keda/keda-2.13.1.yaml
 	kubectl wait --for=condition=Available --timeout=600s apiservice v1beta1.external.metrics.k8s.io
 	kubectl apply -f hack/workload/deployment.yaml
 	kubectl apply -f hack/workload/scaledobject.yaml
@@ -146,7 +146,7 @@ kind-deploy-prom: manifests kustomize docker-build kind-create ## Deploy control
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
 	kubectl apply -f hack/prometheus/manifests/
 	kubectl create clusterrolebinding carbon-aware-keda-operator-prometheus-rolebinding --clusterrole=carbon-aware-keda-operator-metrics-reader --serviceaccount=default:prometheus-operator
-	kubectl apply -f hack/keda/keda-2.10.0.yaml
+	kubectl apply -f hack/keda/keda-2.13.1.yaml
 	kubectl wait --for=condition=Available --timeout=600s apiservice v1beta1.external.metrics.k8s.io
 	kubectl apply -f hack/workload/deployment.yaml
 	kubectl apply -f hack/workload/scaledobject.yaml
@@ -167,7 +167,7 @@ KIND ?= $(LOCALBIN)/kind
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v3.8.7
-CONTROLLER_TOOLS_VERSION ?= v0.11.1
+CONTROLLER_TOOLS_VERSION ?= v0.14.0
 KIND_VERSION ?= v0.17.0
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"

@@ -47,7 +47,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./carbonawarekedascaler-${{ github.ref_name }}.yaml
-        asset_name: carbonawarekedascaler-${{ github.ref_name }}.yaml
-        asset_content_type: application/x-yaml
+        files: ./carbonawarekedascaler-${{ github.ref_name }}.yaml

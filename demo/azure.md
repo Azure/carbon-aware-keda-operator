@@ -137,10 +137,10 @@ kubectl cluster-info
 
 ## Install KEDA
 
-As the name suggest, KEDA is a requirement for this operator. A sample manifest is available in this repo to install KEDA v2.10.0.
+As the name suggest, KEDA is a requirement for this operator. A sample manifest is available in this repo to install KEDA v2.13.1.
 
 ```bash
-kubectl apply -f hack/keda/keda-2.10.0.yaml
+kubectl apply -f hack/keda/keda-2.13.1.yaml
 
 # wait for external metrics
 kubectl wait --for=condition=Available --timeout=600s apiservice v1beta1.external.metrics.k8s.io
